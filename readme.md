@@ -1,6 +1,6 @@
-# API Resep Sederhana
+# Recipe REST-API
 
-RECIPE REST-API adalah aplikasi server untuk menyimpan, mengedit, dan menghapus data resep. Anda dapat berinteraksi dengan API ini menggunakan Postman untuk mengakses dan mengelola data resep.
+Recipe REST-API adalah aplikasi server untuk menyimpan, mengedit, dan menghapus data resep. Anda dapat berinteraksi dengan API ini menggunakan Postman untuk mengakses dan mengelola data resep.
 
 ## Penggunaan
 
@@ -10,6 +10,13 @@ RECIPE REST-API adalah aplikasi server untuk menyimpan, mengedit, dan menghapus 
 - URL: `http://localhost:4000/recipe`
 
 Endpoint ini digunakan untuk menampilkan semua data resep yang tersimpan dalam server.
+
+**Parameter :**
+
+- `sort_by`: Menentukan kolom yang digunakan untuk pengurutan (misalnya: `title`, `recipe_id`, `category_id`).
+- `sort`: Menentukan arah pengurutan (misalnya: `asc` untuk ascending, `desc` untuk descending).
+- `page`: Menentukan halaman data yang ingin ditampilkan (misalnya: `1`, `2`, dst.).
+- `limit`: Menentukan jumlah data resep per halaman (misalnya: `10`, `20`, dst.).
 
 ### Menambahkan Data Resep Baru (POST)
 
@@ -48,7 +55,7 @@ Endpoint ini digunakan untuk mengedit data resep yang sudah ada berdasarkan ID r
 
 Endpoint ini digunakan untuk menghapus data resep berdasarkan ID resep. Anda harus menyediakan ID resep yang ingin dihapus.
 
-### Menampilkan 1 Resep Secara Spesifik Berdasarkan ID (GET)
+### Menampilkan Resep Secara Spesifik Berdasarkan ID (GET)
 
 - Metode: GET
 - URL: `http://localhost:4000/recipe/[id]`
@@ -60,4 +67,4 @@ Endpoint ini digunakan untuk menampilkan data resep tertentu berdasarkan ID rese
 Pastikan Anda telah menjalankan server API pada `http://localhost:4000` agar permintaan dari Postman berfungsi dengan baik.
 
 
-
+## Created by Arya Julianda
