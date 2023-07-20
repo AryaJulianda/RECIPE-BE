@@ -1,12 +1,11 @@
-// Configuration to PostgreSQL
 const { Pool } = require('pg');
+require('dotenv').config();
 
 const dbUsername = process.env.DB_USERNAME;
 const dbPassword = process.env.DB_PASSWORD;
 const dbPort = process.env.DB_PORT;
 const dbHost = process.env.DB_HOST;
 const dbDatabase = process.env.DB_DATABASE;
-
 const pool = new Pool({
   user: dbUsername,
   host: dbHost,
@@ -15,4 +14,13 @@ const pool = new Pool({
   port: dbPort,
 });
 
+pool.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Connected to the database!');
+  }
+});
+
 module.exports = pool;
+
