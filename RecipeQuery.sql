@@ -3,7 +3,9 @@ CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
   username VARCHAR(50) NOT NULL,
   email VARCHAR(100) NOT NULL,
-  password_hash VARCHAR(100) NOT NULL
+  password VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  photo VARCHAR(255)
 );
 
 CREATE TABLE category (
@@ -32,12 +34,16 @@ CREATE TABLE recipe (
     ON UPDATE CASCADE
 );
 
-INSERT INTO users (username, email, password_hash) VALUES
-  ('user1', 'user1@example.com', 'hashed_password1'),
-  ('user2', 'user2@example.com', 'hashed_password2'),
-  ('user3', 'user3@example.com', 'hashed_password3'),
-  ('user4', 'user4@example.com', 'hashed_password4'),
-  ('user5', 'user5@example.com', 'hashed_password5');
+INSERT INTO users (username, email, password)
+VALUES
+  ('admin', 'admin@example.com', 'hashed_password_0'),
+  ('user1', 'user1@example.com', 'hashed_password_1'),
+  ('user2', 'user2@example.com', 'hashed_password_2'),
+  ('user3', 'user3@example.com', 'hashed_password_3'),
+  ('user4', 'user4@example.com', 'hashed_password_4'),
+  ('user5', 'user5@example.com', 'hashed_password_5');
+
+
 
 INSERT INTO category (category_name) VALUES
   ('main course'),
@@ -97,3 +103,8 @@ FROM recipe
 JOIN category ON recipe.category_id = category.category_id;
 
 SELECT recipe.recipe_id, recipe.title, recipe.ingredients, recipe.img, category.category_name AS category FROM recipe JOIN category ON recipe.category_id = category.category_id;
+
+
+
+
+
