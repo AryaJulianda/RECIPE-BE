@@ -74,13 +74,13 @@ async function poolUpdateRecipe(title, ingredients, user_id, category_id, img, i
   }
 }
 
-async function poolDeleteRecipe(id) {
+async function poolDeleteRecipe(id,user_id) {
   if (Number.isNaN(id)) {
     throw new Error('Recipe not found');
   }
-
+  
   try {
-    const result = await pool.query('DELETE FROM recipe WHERE recipe_id = $1 RETURNING *', [id]);
+    const result = await pool.query('DELETE FROM recipe WHERE user_id = $1 AND recipe_id = $2 RETURNING *', [user_id,id]);
     if (result.rowCount > 0) {
       return result;
     }

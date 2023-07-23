@@ -34,8 +34,10 @@ const RecipeController = {
   },
   postRecipe: async (req, res, next) => {
     const {
-      title, ingredients, user_id, category_id, img,
+      title, ingredients, category_id, img,
     } = req.body;
+
+    const user_id = req.userId;
 
     try {
       const result = await poolAddRecipe(title, ingredients, user_id, category_id, img);
@@ -51,11 +53,16 @@ const RecipeController = {
   updateRecipe: async (req, res, next) => {
     const { id } = req.params;
     const {
-      title, ingredients, user_id, category_id, img,
+      title, ingredients, category_id, img,
     } = req.body;
+    const user_id = req.userId;
 
     try {
       const oldData = await poolGetRecipeById(id);
+
+      if(oldData.rows[0].user_id !== user_id) {
+        throw new Error('you dont have access')
+      }
 
       const newData = {
         title: title || oldData.title,
@@ -84,9 +91,16 @@ const RecipeController = {
   },
   deleteRecipe: async (req, res, next) => {
     const { id } = req.params;
+    const user_id = req.userId;
 
     try {
-      const result = await poolDeleteRecipe(id);
+      const check = await poolGetRecipeById(id);
+
+      if (check.rows[0].user_id !== user_id){
+        throw new Error('You dont have access');
+      }
+
+      const result = await poolDeleteRecipe(id,user_id);
       res.json({
         message: 'Delete recipe is successfully',
         data: result.rows[0],

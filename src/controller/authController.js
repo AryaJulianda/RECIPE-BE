@@ -14,8 +14,10 @@ exports.login = async (req, res) => {
 
     // Buat token JWT
     const token = jwt.sign({ id: user.user_id }, config.secretKey, { expiresIn: config.expiresIn });
-    res.json({ success: true, message: 'Login berhasil', token });
-    
+    // Atur cookie dengan atribut HttpOnly
+      res.cookie('jwt', token, { httpOnly: true, secure: true })
+          .json({message:'Token JWT disimpan di cookie HttpOnly.',token:token});
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

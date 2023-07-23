@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const configToken = require('../config/token');
 
+
 exports.authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization');
+  const token = req.cookies.jwt;
 
   if (!token) {
     return res.status(403).json({ success: false, message: 'Token tidak ada, otorisasi ditolak' });

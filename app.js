@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const router = require('./src/router');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cors());
+app.use(cookieParser());
 
 
 app.use(router);
