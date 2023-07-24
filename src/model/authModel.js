@@ -3,7 +3,6 @@ const argon2 = require('argon2');
 const pool = require('../config/db');
 
 exports.login = async (email, password) => {
-  console.log('loginModel')
   try {
     const query = `SELECT * FROM users WHERE email = '${email}'`;
     const result = await pool.query(query);
@@ -18,6 +17,7 @@ exports.login = async (email, password) => {
         throw new Error('Password yang anda masukan salah'); // Jika password tidak sesuai
       }
     } else {
+      
       throw new Error('Email tidak ditemukan'); // Jika email tidak ditemukan
     }
   } catch (error) {
