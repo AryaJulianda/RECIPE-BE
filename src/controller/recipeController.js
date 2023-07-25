@@ -6,6 +6,13 @@ const {
   poolDeleteRecipe,
   poolGetRecipeById,
 } = require('../model/recipeModel');
+const cloudinary = require('cloudinary').v2;
+const upload = require('../middleware/uploadImage');
+const express = require('express');
+const app = express();
+
+// Middleware untuk mengurai data formulir
+app.use(express.urlencoded({ extended: true }));
 
 const RecipeController = {
   getAllRecipe: async (req, res, next) => {
@@ -33,28 +40,30 @@ const RecipeController = {
     }
   },
   postRecipe: async (req, res, next) => {
-    const {
-      title, ingredients, category_id, img,
-    } = req.body;
-
+    const { title, ingredients, category_id } = req.body;
+    console.log({reqbody : req.body ,reqfile: req.file , reqfilepath : req.file.path});
     const user_id = req.userId;
-
+  
     try {
-      const result = await poolAddRecipe(title, ingredients, user_id, category_id, img);
+      let imageUrl ;
 
-      res.json({
-        message: 'Add recipe is successfully',
-        data: result.rows[0],
-      });
+      if (req.file && req.file.path) {
+        imageUrl = req.file.path;
+      }
+
+        const result = await poolAddRecipe(title, ingredients, user_id, category_id, imageUrl);
+
+        res.json({
+          message: 'Resep berhasil ditambahkan',
+          data: result.rows[0],
+        });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   },
   updateRecipe: async (req, res, next) => {
     const { id } = req.params;
-    const {
-      title, ingredients, category_id, img,
-    } = req.body;
+    const { title, ingredients, category_id, img } = req.body;
     const user_id = req.userId;
 
     try {

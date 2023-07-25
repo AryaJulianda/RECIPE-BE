@@ -3,8 +3,18 @@ const pool = require('../config/db');
 async function poolGetAllRecipes(sort_by, sort, page, limit) {
   const offset = (page - 1) * limit;
 
-  let query = 'SELECT recipe.recipe_id, recipe.title, recipe.ingredients, recipe.img, category.category_name AS category FROM recipe JOIN category ON recipe.category_id = category.category_id';
-
+  let query = `SELECT
+                recipe.recipe_id,
+                recipe.title,
+                recipe.ingredients,
+                recipe.img,
+                category.category_name AS category,
+                users.username AS author
+              FROM
+                recipe
+              JOIN category ON recipe.category_id = category.category_id
+              JOIN users ON recipe.user_id = users.user_id`;
+              
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
   }
@@ -38,7 +48,7 @@ const poolSearchRecipe = async (key, search_by, page, limit) => {
   }
 };
 
-async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
+async function poolAddRecipe(title, ingredients, user_id, category_id, imageUrl) {
   if (!title) throw new Error('title is required');
   if (!ingredients) throw new Error('ingredients is required');
   if (!user_id) throw new Error('user id is required');
@@ -46,8 +56,8 @@ async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
 
   try {
     const result = await pool.query(
-      'INSERT INTO recipe (title, ingredients, user_id, category_id) VALUES ($1, $2, $3, $4) RETURNING * ',
-      [title, ingredients, user_id, category_id],
+      'INSERT INTO recipe (title, ingredients, user_id, category_id, img) VALUES ($1, $2, $3, $4, $5) RETURNING * ',
+      [title, ingredients, user_id, category_id, imageUrl],
     );
     return result;
   } catch (err) {

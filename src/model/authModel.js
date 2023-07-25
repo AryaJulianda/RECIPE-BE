@@ -1,6 +1,7 @@
 // models/authModel.js
 const argon2 = require('argon2');
 const pool = require('../config/db');
+const token = require('../config/token')
 
 exports.login = async (email, password) => {
   try {
@@ -17,7 +18,6 @@ exports.login = async (email, password) => {
         throw new Error('Password yang anda masukan salah'); // Jika password tidak sesuai
       }
     } else {
-      
       throw new Error('Email tidak ditemukan'); // Jika email tidak ditemukan
     }
   } catch (error) {
@@ -50,4 +50,33 @@ exports.register = async (username,email,password) => {
   }
 };
 
+// insert to redis
+// exports.postAccessToken = async (user_id, token) => {
+//   try{
+//   console.log('ini post access')
+//   const result = await client.set(`user:${user_id}:jwt`, token, 'EX', configToken.expiresIn);
+//   if (result === 'OK') {
+//     return result;
+//   } else {
+//     throw new Error('Gagal menyimpan access token di Redis');
+//   }
+
+//   } catch(error) {
+//     throw new Error(error.message)
+//   }
+// }
+
+// exports.postRefreshToken = async (user_id, refreshToken) => {
+//   try{
+//     console.log('refresh token')
+//   const result = await client.set(`user:${user_id}:jwt`, refreshToken, 'EX', configToken.refreshExpiresIn);
+//   if (result === 'OK') {
+//     return result;
+//   } else {
+//     throw new Error('Gagal menyimpan refresh token di Redis');
+//   }
+//   } catch(error) {
+//     throw new Error(error.message)
+//   }
+// }
 

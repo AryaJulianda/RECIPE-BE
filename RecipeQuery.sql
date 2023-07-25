@@ -105,6 +105,10 @@ JOIN category ON recipe.category_id = category.category_id;
 SELECT recipe.recipe_id, recipe.title, recipe.ingredients, recipe.img, category.category_name AS category FROM recipe JOIN category ON recipe.category_id = category.category_id;
 
 
+CREATE TABLE refresh_tokens (
+    token VARCHAR(255) PRIMARY KEY,
+    user_id INT NOT NULL
+);
 
 
 

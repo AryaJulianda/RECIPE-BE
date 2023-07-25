@@ -1,10 +1,10 @@
 const app = require('express');
-const {authMiddleware} = require('../middleware/authMiddleware')
+const {tokenVerification, validateRole} = require('../middleware/authMiddleware')
 const router = app.Router();
 
 const categoryController = require('../controller/categoryController');
 
-router.get('/', authMiddleware, categoryController.getAllCategories);
-router.get('/:id', authMiddleware, categoryController.getCategoryById);
+router.get('/', tokenVerification, categoryController.getAllCategories);
+router.get('/:id', tokenVerification, categoryController.getCategoryById);
 
 module.exports = router;
