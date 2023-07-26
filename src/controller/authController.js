@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
     
     // Generate Refresh Token JWT
     const refreshToken = jwt.sign({ id: user.user_id, role: role }, config.secretKey, { expiresIn: config.refreshExpiresIn });
-  
+
     res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
     .json({ message: 'Token JWT disimpan di cookie HttpOnly.', accessToken: accessToken })
 
