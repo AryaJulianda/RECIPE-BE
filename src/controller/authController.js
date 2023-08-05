@@ -3,9 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/token');
 const authModel = require('../model/authModel')
 const pool = require('../config/db');
-
-
-
+// const { v4: uuidv4 } = require('uuid'); 
 
 exports.login = async (req, res) => {
   let { email, password ,role} = req.body;
@@ -20,12 +18,17 @@ exports.login = async (req, res) => {
     // Generate Token JWT
     const accessToken = jwt.sign({ id: user.user_id ,role: role}, config.secretKey, { expiresIn: config.expiresIn });
 
-    
-    // Generate Refresh Token JWT
-    const refreshToken = jwt.sign({ id: user.user_id, role: role }, config.secretKey, { expiresIn: config.refreshExpiresIn });
+    // // Generate UUID for session
+    // const sessionId = uuidv4();
 
-    res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
-    .json({ message: 'Token JWT disimpan di cookie HttpOnly.', accessToken: accessToken })
+    // // Save UUID and JWT token in your session storage (e.g., database or cache)
+    // // Here, I am using a simple in-memory object to store the sessions
+    // sessionsDB[sessionId] = accessToken;
+
+    // res.json({ message: 'Token JWT disimpan di session dengan UUID.', sessionId: sessionId });
+
+    // res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
+    res.json({ message: 'Token Jwt.', accessToken: accessToken });
 
   
   } catch (error) {

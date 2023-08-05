@@ -11,7 +11,6 @@ const upload = require('../middleware/uploadImage');
 const express = require('express');
 const app = express();
 
-// Middleware untuk mengurai data formulir
 app.use(express.urlencoded({ extended: true }));
 
 const RecipeController = {
@@ -41,44 +40,52 @@ const RecipeController = {
   },
   postRecipe: async (req, res, next) => {
     const { title, ingredients, category_id } = req.body;
-    console.log({reqbody : req.body ,reqfile: req.file , reqfilepath : req.file.path});
+    // console.log({'reqbody' : req.body ,'reqfile': req.file});
     const user_id = req.userId;
   
     try {
-      let imageUrl ;
+      let img ;
 
       if (req.file && req.file.path) {
-        imageUrl = req.file.path;
+        img = req.file.path;
       }
 
-        const result = await poolAddRecipe(title, ingredients, user_id, category_id, imageUrl);
+        const result = await poolAddRecipe(title, ingredients, user_id, category_id, img);
 
         res.json({
           message: 'Resep berhasil ditambahkan',
           data: result.rows[0],
         });
     } catch (err) {
+      console.log(err.message)
       res.status(500).json({ error: err.message });
     }
   },
   updateRecipe: async (req, res, next) => {
     const { id } = req.params;
-    const { title, ingredients, category_id, img } = req.body;
+    const { title, ingredients, category_id } = req.body;
     const user_id = req.userId;
+    let img ;
+
+    if (req.file && req.file.path) {
+      img = req.file.path;
+    }
 
     try {
       const oldData = await poolGetRecipeById(id);
+      console.log(oldData.rows[0].title)
+      console.log(req.body.title)
 
       if(oldData.rows[0].user_id !== user_id) {
         throw new Error('you dont have access')
       }
 
       const newData = {
-        title: title || oldData.title,
-        ingredients: ingredients || oldData.rows[0].ingredients,
-        user_id: user_id || oldData.rows[0].user_id,
-        category_id: category_id || oldData.rows[0].category_id,
-        img: img || oldData.rows[0].img,
+        title: title,
+        ingredients: ingredients,
+        user_id: user_id ,
+        category_id: category_id,
+        img: img,
       };
 
       const result = await poolUpdateRecipe(
@@ -95,6 +102,7 @@ const RecipeController = {
         oldData: oldData.rows[0],
       });
     } catch (err) {
+      console.log('edit gagla',err)
       res.status(500).json({ error: err.message });
     }
   },

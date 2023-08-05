@@ -10,7 +10,7 @@ router.get('/search', recipeController.searchRecipe);
 router.get('/:id', recipeController.getRecipeById);
 
 router.post('/', tokenVerification,upload.single('img'), recipeController.postRecipe);
-router.put('/:id', tokenVerification, recipeController.updateRecipe);
+router.put('/:id', tokenVerification,upload.single('img'), recipeController.updateRecipe);
 router.delete('/:id', tokenVerification, recipeController.deleteRecipe);
 
 

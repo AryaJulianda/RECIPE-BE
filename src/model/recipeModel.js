@@ -48,7 +48,7 @@ const poolSearchRecipe = async (key, search_by, page, limit) => {
   }
 };
 
-async function poolAddRecipe(title, ingredients, user_id, category_id, imageUrl) {
+async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
   if (!title) throw new Error('title is required');
   if (!ingredients) throw new Error('ingredients is required');
   if (!user_id) throw new Error('user id is required');
@@ -57,7 +57,7 @@ async function poolAddRecipe(title, ingredients, user_id, category_id, imageUrl)
   try {
     const result = await pool.query(
       'INSERT INTO recipe (title, ingredients, user_id, category_id, img) VALUES ($1, $2, $3, $4, $5) RETURNING * ',
-      [title, ingredients, user_id, category_id, imageUrl],
+      [title, ingredients, user_id, category_id, img],
     );
     return result;
   } catch (err) {
@@ -65,14 +65,14 @@ async function poolAddRecipe(title, ingredients, user_id, category_id, imageUrl)
   }
 }
 
-async function poolUpdateRecipe(title, ingredients, user_id, category_id, img, id) {
-  if (Number.isNaN(id)) {
+async function poolUpdateRecipe(title, ingredients, user_id, category_id, img, recipe_id) {
+  if (Number.isNaN(recipe_id)) {
     throw new Error('recipe not found');
   }
   try {
     const result = await pool.query(
       'UPDATE recipe SET title = $1, ingredients = $2, user_id = $3, category_id = $4, img=$5 WHERE recipe_id = $6 RETURNING *',
-      [title, ingredients, user_id, category_id, img, id],
+      [title, ingredients, user_id, category_id, img, recipe_id],
     );
 
     if (result.rowCount > 0) {
@@ -100,17 +100,18 @@ async function poolDeleteRecipe(id,user_id) {
   }
 }
 
-async function poolGetRecipeById(id) {
-  if (Number.isNaN(id)) {
-    throw new Error('Recipe not found');
+async function poolGetRecipeById(recipe_id) {
+  if (Number.isNaN(recipe_id)) {
+    throw new Error('Params wrong');
   }
 
   try {
-    const result = await pool.query('SELECT * FROM recipe WHERE recipe_id = $1', [id]);
+    const result = await pool.query('SELECT * FROM recipe WHERE recipe_id = $1', [recipe_id]);
     if (result.rowCount > 0) {
       return result;
+    } else {
+      throw new Error(`No recipes with id ${recipe_id}`);
     }
-    throw new Error('Recipe not found');
   } catch (err) {
     throw new Error(err.message);
   }
