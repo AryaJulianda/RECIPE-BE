@@ -8,6 +8,8 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
                 recipe.title,
                 recipe.ingredients,
                 recipe.img,
+                recipe.user_id,
+                recipe.category_id,
                 category.category_name AS category,
                 users.username AS author
               FROM
@@ -33,7 +35,23 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
 
 const poolSearchRecipe = async (key, search_by, page, limit) => {
   const offset = (page - 1) * limit;
-  let query = `SELECT * FROM recipe WHERE ${search_by} ILIKE '%${key}%'`;
+  // let query = `SELECT * FROM recipe WHERE ${search_by} ILIKE '%${key}%'`;
+  let query = `SELECT
+  recipe.recipe_id,
+  recipe.title,
+  recipe.ingredients,
+  recipe.img,
+  recipe.user_id,
+  category.category_name AS category,
+  users.username AS author
+FROM
+  recipe
+JOIN category ON recipe.category_id = category.category_id
+JOIN users ON recipe.user_id = users.user_id
+WHERE 
+  ${search_by} 
+ILIKE 
+  '%${key}%'`;
 
   if (limit) {
     query += ` LIMIT ${limit} OFFSET ${offset}`;
@@ -65,14 +83,14 @@ async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
   }
 }
 
-async function poolUpdateRecipe(title, ingredients, user_id, category_id, img, recipe_id) {
-  if (Number.isNaN(recipe_id)) {
+async function poolUpdateRecipe(title, ingredients, user_id, category_id, img,id) {
+  if (Number.isNaN(id)) {
     throw new Error('recipe not found');
   }
   try {
     const result = await pool.query(
       'UPDATE recipe SET title = $1, ingredients = $2, user_id = $3, category_id = $4, img=$5 WHERE recipe_id = $6 RETURNING *',
-      [title, ingredients, user_id, category_id, img, recipe_id],
+      [title, ingredients, user_id, category_id, img, id],
     );
 
     if (result.rowCount > 0) {
@@ -80,6 +98,7 @@ async function poolUpdateRecipe(title, ingredients, user_id, category_id, img, r
     }
     throw new Error('Recipe not found');
   } catch (err) {
+    // console.log(title, ingredients, user_id, category_id, img,id)
     throw new Error(err.message);
   }
 }
@@ -106,7 +125,22 @@ async function poolGetRecipeById(recipe_id) {
   }
 
   try {
-    const result = await pool.query('SELECT * FROM recipe WHERE recipe_id = $1', [recipe_id]);
+    const query = `SELECT
+    recipe.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    category.category_name AS category,
+    users.username AS author
+  FROM
+    recipe
+  JOIN category ON recipe.category_id = category.category_id
+  JOIN users ON recipe.user_id = users.user_id
+  WHERE 
+    recipe_id = $1`;
+    const result = await pool.query(query, [recipe_id]);
     if (result.rowCount > 0) {
       return result;
     } else {

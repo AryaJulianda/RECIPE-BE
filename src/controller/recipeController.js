@@ -73,12 +73,14 @@ const RecipeController = {
 
     try {
       const oldData = await poolGetRecipeById(id);
-      console.log(oldData.rows[0].title)
-      console.log(req.body.title)
+      // console.log(oldData.rows[0].title)
+      // console.log(req.body.title)
 
       if(oldData.rows[0].user_id !== user_id) {
         throw new Error('you dont have access')
       }
+      
+      if(!img){img=oldData.rows[0].img};
 
       const newData = {
         title: title,
@@ -114,7 +116,8 @@ const RecipeController = {
       const check = await poolGetRecipeById(id);
 
       if (check.rows[0].user_id !== user_id){
-        throw new Error('You dont have access');
+        console.log('You dont have access',check.rows[0].user_id,user_id)
+        throw new Error('You dont have access',check.rows[0].user_id,user_id);
       }
 
       const result = await poolDeleteRecipe(id,user_id);
