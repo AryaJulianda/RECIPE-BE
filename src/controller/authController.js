@@ -2,7 +2,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/token');
 const authModel = require('../model/authModel')
-const pool = require('../config/db');
 // const { v4: uuidv4 } = require('uuid'); 
 
 exports.login = async (req, res) => {
@@ -17,6 +16,7 @@ exports.login = async (req, res) => {
 
     // Generate Token JWT
     const accessToken = jwt.sign({ id: user.user_id ,role: role}, config.secretKey, { expiresIn: config.expiresIn });
+    const refreshToken = jwt.sign({ id: user.user_id, role: role }, config.refreshSecretKey, { expiresIn: config.refreshExpiresIn });
 
     // // Generate UUID for session
     // const sessionId = uuidv4();
@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
     // res.json({ message: 'Token JWT disimpan di session dengan UUID.', sessionId: sessionId });
 
     // res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
-    res.json({ message: 'Token Jwt.', accessToken: accessToken });
+    res.json({ message: 'Token Jwt.', accessToken: accessToken ,refreshToken: refreshToken});
 
   
   } catch (error) {
@@ -49,23 +49,40 @@ exports.register = async (req, res) => {
     }
   };
 
-exports.refreshToken = async (req,res) => {
-  try{
-    const {id} = req.params;
-    const result = await pool.query('SELECT * FROM refresh_tokens WHERE user_id = $1', [id])
-    const user = result.rows[0];
+exports.refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
 
-    jwt.verify(user.token, config.secretKey, (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ error: 'Invalid refresh token' });
-      }
-      const payload = decoded;
-      // Jika refresh token valid, buat access token baru dan kirimkan kembali ke klien
-      const token = jwt.sign({id:payload.id,role:payload.role}, config.secretKey, { expiresIn: config.expiresIn });
-      res.cookie('jwt', token, { httpOnly: true, secure: true })
-        .json({message:'refresh token is successfully', newToken: token })
-    })
-  } catch(err) {
-    res.json({message:err.message})
+  try {
+    // Verify refresh token
+    const decodedRefreshToken = jwt.verify(refreshToken, config.refreshSecretKey);
+
+    // Generate new access token
+    const accessToken = jwt.sign({ id: decodedRefreshToken.id, role: decodedRefreshToken.role }, config.secretKey, { expiresIn: config.expiresIn });
+
+    res.json({ accessToken: accessToken });
+  } catch (error) {
+    res.status(401).json({ success: false, message: 'Invalid refresh token' });
   }
-}
+};
+
+
+  // exports.refreshToken = async (req,res) => {
+  //   try{
+  //     const {id} = req.params;
+  //     const result = await pool.query('SELECT * FROM refresh_tokens WHERE user_id = $1', [id])
+  //     const user = result.rows[0];
+  
+  //     jwt.verify(user.token, config.secretKey, (err, decoded) => {
+  //       if (err) {
+  //         return res.status(401).json({ error: 'Invalid refresh token' });
+  //       }
+  //       const payload = decoded;
+  //       // Jika refresh token valid, buat access token baru dan kirimkan kembali ke klien
+  //       const token = jwt.sign({id:payload.id,role:payload.role}, config.secretKey, { expiresIn: config.expiresIn });
+  //       res.cookie('jwt', token, { httpOnly: true, secure: true })
+  //         .json({message:'refresh token is successfully', newToken: token })
+  //     })
+  //   } catch(err) {
+  //     res.json({message:err.message})
+  //   }
+  // }

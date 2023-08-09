@@ -1,6 +1,21 @@
 const jwt = require('jsonwebtoken');
 const configToken = require('../config/token');
 
+const gerateNewAccessToken = (refreshToken) => {
+  try {
+    // Verify refresh token
+    const decodedRefreshToken = jwt.verify(refreshToken, config.refreshSecretKey);
+
+    // Generate new access token
+    const newAccessToken = jwt.sign({ id: decodedRefreshToken.id, role: decodedRefreshToken.role }, config.secretKey, { expiresIn: config.expiresIn });
+
+    return newAccessToken;
+  } catch (error) {
+    throw new Error('Invalid refresh token');
+  }
+};
+
+
 exports.tokenVerification = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -23,7 +38,18 @@ exports.tokenVerification = (req, res, next) => {
     req.role = decoded.role;
     next();
   } catch (error) {
+     if (error.name === 'TokenExpiredError') {
+      try {
+        const newAccessToken = gerateNewAccessToken(req.body.refreshToken);
+        req.userId = newAccessToken.id;
+        req.role = newAccessToken.role;
+        next();
+      } catch (refreshError) {
+        return res.status(401).json({ success: false, message: 'Token kedaluwarsa' });
+      } 
+  } else {
     return res.status(401).json({ success: false, message: 'Token tidak valid' });
+  }
   }
 };
 
