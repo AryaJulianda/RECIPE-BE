@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const configToken = require('../config/token');
+const authModel = require('../model/authModel')
 
 const gerateNewAccessToken = (refreshToken) => {
   try {
@@ -16,7 +17,7 @@ const gerateNewAccessToken = (refreshToken) => {
 };
 
 
-exports.tokenVerification = (req, res, next) => {
+exports.tokenVerification = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -33,6 +34,12 @@ exports.tokenVerification = (req, res, next) => {
   try {
     // Verifikasi token JWT
     const decoded = jwt.verify(token, configToken.secretKey);
+
+    // Verifikasi is_active dari user
+      const user = await authModel.getUserById(decoded.id);
+      if (!user || !user.is_active) {
+        return res.status(401).json({ success: false, message: 'Akun tidak aktif atau tidak ditemukan' });
+      }
     // console.log(`User dengan id ${decoded.id} dan role ${decoded.role} sedang menggunakan aplikasi`);
     req.userId = decoded.id;
     req.role = decoded.role;

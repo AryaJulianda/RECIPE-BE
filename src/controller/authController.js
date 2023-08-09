@@ -38,11 +38,17 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     try {
-      // Lakukan registrasi ke database menggunakan model
       const newUser = await authModel.register(username, email, password);
+
+      const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
   
+      // const activationLink = `https://creepy-pocket-yak.cyclic.app/auth/activate/${activationToken}`;
+      const activationLink = `http://localhost:4000/auth/activate/${activationToken}`;
+      const emailContent = `Klik tautan berikut untuk mengaktifkan akun Anda: ${activationLink}`;
+      authModel.sendActivationEmail(newUser.email, 'Aktivasi Akun', emailContent);
+
       res.json({ success: true, message: 'Registrasi berhasil', user: newUser });
     } catch (error) {
       res.status(400).json({ success: false, message: error.message });
@@ -65,6 +71,21 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
+exports.activateAccount = async (req, res) => {
+  const activationToken = req.params.token;
+
+  try {
+    const decodedToken = jwt.verify(activationToken, config.activationSecretKey);
+    const userEmail = decodedToken.email;
+
+    // Aktivasi Akun di Database
+    await authModel.activateUserAccount(userEmail);
+
+    res.send('Akun Anda telah diaktifkan. Silakan masuk.');
+  } catch (error) {
+    res.status(400).send('Tautan aktivasi tidak valid.');
+  }
+};
 
   // exports.refreshToken = async (req,res) => {
   //   try{
