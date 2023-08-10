@@ -44,8 +44,8 @@ exports.register = async (req, res) => {
 
       const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
   
-      // const activationLink = `https://creepy-pocket-yak.cyclic.app/auth/activate/${activationToken}`;
-      const activationLink = `http://localhost:4000/auth/activate/${activationToken}`;
+      const activationLink = `https://creepy-pocket-yak.cyclic.app/auth/activate/${activationToken}`;
+      // const activationLink = `http://localhost:4000/auth/activate/${activationToken}`;
       const emailContent = `Klik tautan berikut untuk mengaktifkan akun Anda: ${activationLink}`;
       authModel.sendActivationEmail(newUser.email, 'Aktivasi Akun', emailContent);
 
