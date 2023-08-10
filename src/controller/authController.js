@@ -43,8 +43,7 @@ exports.register = async (req, res) => {
       const newUser = await authModel.register(username, email, password);
 
       const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
-  
-      const activationLink = `${process.env.BASE_URL}/auth/activate/${activationToken}`;
+      const activationLink = `${process.env.FE_URL}/activate?token=${activationToken}`;
       const emailContent = `Klik tautan berikut untuk mengaktifkan akun Anda: ${activationLink}`;
       authModel.sendActivationEmail(newUser.email, 'Aktivasi Akun', emailContent);
 
@@ -72,6 +71,7 @@ exports.refreshToken = async (req, res) => {
 
 exports.activateAccount = async (req, res) => {
   const activationToken = req.params.token;
+    console.log(activationToken)
 
   try {
     const decodedToken = jwt.verify(activationToken, config.activationSecretKey);
@@ -79,10 +79,10 @@ exports.activateAccount = async (req, res) => {
 
     // Aktivasi Akun di Database
     await authModel.activateUserAccount(userEmail);
-
-    res.send('Akun Anda telah diaktifkan. Silakan masuk.');
+    res.status(200).json({ success: true, message: 'Activation successfully' });
   } catch (error) {
-    res.status(400).send('Tautan aktivasi tidak valid.');
+    // res.redirect('/login?message=invalidActivationLink');
+    res.status(400).json({ success: false, message: error.message ,kontol:"kontol"});
   }
 };
 
