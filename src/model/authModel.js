@@ -2,6 +2,7 @@
 const argon2 = require('argon2');
 const pool = require('../config/db');
 const token = require('../config/token')
+const emailTester = require('../config/emailTester')
 const nodemailer = require('nodemailer');
 
 exports.login = async (email, password) => {
@@ -51,13 +52,13 @@ exports.sendActivationEmail = (to, subject, content) => {
     host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-        user: 'teagan.gorczany30@ethereal.email',
-        pass: 'T2tZdxQ37VbKVJH4eT'
+        user: emailTester.email,
+        pass: emailTester.password
     }
   });
 
   const mailOptions = {
-    from: 'teagan.gorczany30@ethereal.email',
+    from: emailTester.email,
     to: to,
     subject: subject,
     html: content

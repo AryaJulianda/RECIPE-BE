@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
     // res.json({ message: 'Token JWT disimpan di session dengan UUID.', sessionId: sessionId });
 
     // res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
-    res.json({ message: 'Token Jwt.', accessToken: accessToken ,refreshToken: refreshToken});
+    res.json({ message: 'Login Successfully', user:user , accessToken: accessToken ,refreshToken: refreshToken});
 
   
   } catch (error) {
@@ -44,8 +44,7 @@ exports.register = async (req, res) => {
 
       const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
   
-      const activationLink = `https://creepy-pocket-yak.cyclic.app/auth/activate/${activationToken}`;
-      // const activationLink = `http://localhost:4000/auth/activate/${activationToken}`;
+      const activationLink = `${process.env.BASE_URL}/auth/activate/${activationToken}`;
       const emailContent = `Klik tautan berikut untuk mengaktifkan akun Anda: ${activationLink}`;
       authModel.sendActivationEmail(newUser.email, 'Aktivasi Akun', emailContent);
 

@@ -151,11 +151,46 @@ async function poolGetRecipeById(recipe_id) {
   }
 }
 
+async function poolGetRecipeByUserId(user_id) {
+  // console.log(user_id)
+  if (Number.isNaN(user_id)) {
+    throw new Error('Params wrong');
+  }
+
+  try {
+    const query = `SELECT
+    recipe.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    category.category_name AS category,
+    users.username AS author
+  FROM
+    recipe
+  JOIN category ON recipe.category_id = category.category_id
+  JOIN users ON recipe.user_id = users.user_id
+  WHERE 
+    recipe.user_id = $1`
+    ;
+    const result = await pool.query(query, [user_id]);
+    if (result.rowCount > 0) {
+      return result;
+    } else {
+      throw new Error(`recipe not found`);
+    }
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 module.exports = {
   poolGetAllRecipes,
   poolSearchRecipe,
   poolAddRecipe,
   poolUpdateRecipe,
   poolDeleteRecipe,
+  poolGetRecipeByUserId,
   poolGetRecipeById,
 };

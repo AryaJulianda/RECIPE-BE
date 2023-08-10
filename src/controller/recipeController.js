@@ -4,7 +4,8 @@ const {
   poolAddRecipe,
   poolUpdateRecipe,
   poolDeleteRecipe,
-  poolGetRecipeById,
+  poolGetRecipeByUserId,
+  poolGetRecipeById
 } = require('../model/recipeModel');
 const cloudinary = require('cloudinary').v2;
 const upload = require('../middleware/uploadImage');
@@ -16,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 const RecipeController = {
   getAllRecipe: async (req, res, next) => {
     const {
-      sort_by, sort, page, limit,
+      sort_by, sort, page, limit,user_id
     } = req.query;
 
     try {
@@ -137,6 +138,16 @@ const RecipeController = {
       res.json(result.rows[0]);
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  },
+  getRecipeByUserId: async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+      const result = await poolGetRecipeByUserId(id);
+      res.json(result.rows);
+    } catch (err) {
+      res.status(500).json({ message: err.message});
     }
   },
 };
