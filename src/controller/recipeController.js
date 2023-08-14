@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 const RecipeController = {
   getAllRecipe: async (req, res, next) => {
     const {
-      sort_by, sort, page, limit,user_id
+      sort_by, sort, page, limit
     } = req.query;
 
     try {
