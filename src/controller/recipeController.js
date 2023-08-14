@@ -1,6 +1,8 @@
 const {
   poolGetAllRecipes,
   poolSearchRecipe,
+  poolGetTotalSearchRecipeCount,
+  poolGetTotalRecipeCount,
   poolAddRecipe,
   poolUpdateRecipe,
   poolDeleteRecipe,
@@ -22,7 +24,11 @@ const RecipeController = {
 
     try {
       const result = await poolGetAllRecipes(sort_by, sort, page, limit);
-      res.json(result.rows);
+
+      const totalCountQuery = await poolGetTotalRecipeCount();
+      const totalCount = parseInt(totalCountQuery.rows[0].count);
+
+      res.json({ totalCount, recipes: result.rows });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -34,7 +40,11 @@ const RecipeController = {
 
     try {
       const result = await poolSearchRecipe(key, search_by, page, limit);
-      res.json(result.rows);
+
+      const totalCountQuery = await poolGetTotalSearchRecipeCount(key, search_by);
+      const totalCount = parseInt(totalCountQuery.rows[0].count);
+
+      res.json({ totalCount, recipes: result.rows });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

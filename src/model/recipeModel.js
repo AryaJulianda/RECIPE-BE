@@ -33,6 +33,17 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
   }
 }
 
+const poolGetTotalRecipeCount = async () => {
+  let query = `SELECT COUNT(*) FROM recipe`;
+
+  try {
+      const result = await pool.query(query);
+      return result;
+  } catch (err) {
+      throw new Error(err.message);
+  }
+};
+
 const poolSearchRecipe = async (key, search_by, page, limit) => {
   const offset = (page - 1) * limit;
   // let query = `SELECT * FROM recipe WHERE ${search_by} ILIKE '%${key}%'`;
@@ -65,6 +76,18 @@ ILIKE
     throw new Error(err.message);
   }
 };
+
+const poolGetTotalSearchRecipeCount = async (key, search_by) => {
+  let query = `SELECT COUNT(*) FROM recipe WHERE ${search_by} ILIKE '%${key}%'`;
+
+  try {
+      const result = await pool.query(query);
+      return result;
+  } catch (err) {
+      throw new Error(err.message);
+  }
+};
+
 
 async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
   if (!title) throw new Error('title is required');
@@ -188,6 +211,8 @@ async function poolGetRecipeByUserId(user_id) {
 module.exports = {
   poolGetAllRecipes,
   poolSearchRecipe,
+  poolGetTotalSearchRecipeCount,
+  poolGetTotalRecipeCount,
   poolAddRecipe,
   poolUpdateRecipe,
   poolDeleteRecipe,
