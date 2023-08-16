@@ -10,12 +10,15 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
                 recipe.img,
                 recipe.user_id,
                 recipe.category_id,
+                recipe.created_at,
                 category.category_name AS category,
-                users.username AS author
+                users.username AS author,
+                users.photo AS author_photo
               FROM
                 recipe
               JOIN category ON recipe.category_id = category.category_id
-              JOIN users ON recipe.user_id = users.user_id`;
+              JOIN users ON recipe.user_id = users.user_id`
+
               
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
@@ -53,8 +56,11 @@ const poolSearchRecipe = async (key, search_by, page, limit) => {
   recipe.ingredients,
   recipe.img,
   recipe.user_id,
+  recipe.category_id,
+  recipe.created_at,
   category.category_name AS category,
-  users.username AS author
+  users.username AS author,
+  users.photo AS author_photo
 FROM
   recipe
 JOIN category ON recipe.category_id = category.category_id
@@ -97,7 +103,7 @@ async function poolAddRecipe(title, ingredients, user_id, category_id, img) {
 
   try {
     const result = await pool.query(
-      'INSERT INTO recipe (title, ingredients, user_id, category_id, img) VALUES ($1, $2, $3, $4, $5) RETURNING * ',
+      'INSERT INTO recipe (title, ingredients, user_id, category_id, img,created_at) VALUES ($1, $2, $3, $4, $5,current_timestamp) RETURNING * ',
       [title, ingredients, user_id, category_id, img],
     );
     return result;
@@ -150,13 +156,15 @@ async function poolGetRecipeById(recipe_id) {
   try {
     const query = `SELECT
     recipe.recipe_id,
+    recipe.created_at,
     recipe.title,
     recipe.ingredients,
     recipe.img,
     recipe.user_id,
     recipe.category_id,
     category.category_name AS category,
-    users.username AS author
+    users.username AS author,
+    users.photo AS author_photo
   FROM
     recipe
   JOIN category ON recipe.category_id = category.category_id

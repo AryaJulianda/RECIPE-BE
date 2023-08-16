@@ -12,11 +12,15 @@ exports.login = async (email, password) => {
 
     if (result.rowCount > 0) {
       const user = result.rows[0];
-      if (await argon2.verify(user.password, password)) {
+      if(!user.is_active) {
+        throw new Error('Please activate your acount')
+      } else if (await argon2.verify(user.password, password)) {
         return user;
       } else {
         throw new Error('Password yang anda masukan salah');
       }
+
+
     } else {
       throw new Error('Email tidak ditemukan');
     }
