@@ -7,16 +7,25 @@ const {
   poolUpdateRecipe,
   poolDeleteRecipe,
   poolGetRecipeByUserId,
-  poolGetRecipeById
+  poolGetRecipeById,
+  poolPostLike,
+  poolGetLikes,
+  poolPostComment,
+  poolGetComments,
+  poolDeleteComment,
+  poolAddBookmark,
+  poolRemoveBookmark,
+  poolGetUserBookmarks,
+  poolGetRecipesLatest
 } = require('../model/recipeModel');
-const cloudinary = require('cloudinary').v2;
-const upload = require('../middleware/uploadImage');
+// const cloudinary = require('cloudinary').v2;
+// const upload = require('../middleware/uploadImage');
 const express = require('express');
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 
-const RecipeController = {
+const recipeController = {
   getAllRecipe: async (req, res, next) => {
     const {
       sort_by, sort, page, limit
@@ -160,6 +169,136 @@ const RecipeController = {
       res.status(500).json({ message: err.message});
     }
   },
+  postLike: async (req, res, next) => {
+    const recipeId = req.params.id;
+    const userId = req.userId;
+    // console.log(userId,recipeId)
+
+    try {
+        const result = await poolPostLike(userId,recipeId);
+
+        res.json({
+          message: result.message,
+          data: result.data.rows[0],
+        });
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).json({ error: err.message });
+    }
+  },
+  getLikes: async (req, res, next) => {
+    const recipeId = req.params.id;
+    // console.log(recipeId)
+
+    try {
+        const result = await poolGetLikes(recipeId);
+
+        res.json({
+          message: 'Jumlah like berhasil didapat',
+          data: result.rowCount,
+        });
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).json({ error: err.message });
+    }
+  },
+  postComment: async (req, res, next) => {
+    const recipeId = req.params.id;
+    const userId = req.userId;
+    const { commentText }= req.body;
+    // console.log(userId,recipeId)
+
+    try {
+        const result = await poolPostComment(userId,recipeId,commentText);
+
+        res.json({
+          message: 'add comment success',
+          data: result,
+        });
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).json({ error: err.message });
+    }
+  },
+  getComments: async (req, res, next) => {
+    const recipeId = req.params.id;
+    // console.log(recipeId)
+
+    try {
+        const result = await poolGetComments(recipeId);
+
+        res.json({
+          message: 'Get Comments Successfull',
+          data: result
+        });
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).json({ error: err.message });
+    }
+  },
+  deleteComment: async (req, res, next) => {
+    const commentId = req.params.commentId;
+    const userId = req.userId;
+
+    try {
+        const result = await poolDeleteComment(commentId,userId);
+
+        res.json({
+          message: 'del comment success',
+          data: result,
+        });
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).json({ error: err.message });
+    }
+  },
+  addBookmark: async (req, res, next) => {
+    const userId = req.userId;
+    const recipeId = req.params.id;
+
+    try {
+      const result = await poolAddBookmark(userId, recipeId);
+      res.json({ message: 'Bookmark added successfully', data :result}); 
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+  removeBookmark: async (req, res, next) => {
+    const userId = req.userId;
+    const recipeId = req.params.id;
+  
+    try {
+      const result = await poolRemoveBookmark(userId, recipeId);
+      res.json({ message: 'Bookmark removed successfully', data: result});
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+  getUserBookmarks: async (req, res, next) => {
+    const userId = req.userId; 
+  
+    try {
+      const bookmarks = await poolGetUserBookmarks(userId);
+      res.json({ data : bookmarks });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+  getRecipesLatest: async (req, res, next) => {
+    const limit = 10;
+
+    try {
+      const result = await poolGetRecipesLatest(limit);
+      res.json({data : result})
+    } catch(err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+  
 };
 
-module.exports = RecipeController;
+module.exports = recipeController;

@@ -3,29 +3,46 @@ const pool = require('../config/db');
 async function poolGetAllRecipes(sort_by, sort, page, limit) {
   const offset = (page - 1) * limit;
 
-  let query = `SELECT
-                recipe.recipe_id,
-                recipe.title,
-                recipe.ingredients,
-                recipe.img,
-                recipe.user_id,
-                recipe.category_id,
-                recipe.created_at,
-                category.category_name AS category,
-                users.username AS author,
-                users.photo AS author_photo
-              FROM
-                recipe
-              JOIN category ON recipe.category_id = category.category_id
-              JOIN users ON recipe.user_id = users.user_id`
+  let query = `
+    SELECT
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name AS category,
+      users.username AS author,
+      users.photo AS author_photo,
+      COALESCE(COUNT(likes.like_id), 0) AS like_count
+    FROM
+      recipe
+    JOIN category ON recipe.category_id = category.category_id
+    JOIN users ON recipe.user_id = users.user_id
+    LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
+  `;
 
-              
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
   }
   if (limit) {
     query += ` LIMIT ${limit} OFFSET ${offset}`;
   }
+
+  query += `
+    GROUP BY
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name,
+      users.username,
+      users.photo
+  `;
 
   try {
     const result = await pool.query(query);
@@ -35,6 +52,50 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
     throw new Error(err.message);
   }
 }
+
+async function poolGetRecipesLatest(limit) {
+
+  let query = `
+    SELECT
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name AS category,
+      users.username AS author,
+      users.photo AS author_photo,
+      COUNT(likes.like_id) AS like_count
+    FROM
+      recipe
+    JOIN category ON recipe.category_id = category.category_id
+    JOIN users ON recipe.user_id = users.user_id
+    LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
+    GROUP BY
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name,
+      users.username,
+      users.photo
+    ORDER BY recipe.created_at DESC
+    LIMIT ${limit};`;
+
+  try {
+    const result = await pool.query(query);
+    if (result.rowCount === 0) return { message: 'recipe not found' };
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 
 const poolGetTotalRecipeCount = async () => {
   let query = `SELECT COUNT(*) FROM recipe`;
@@ -51,28 +112,44 @@ const poolSearchRecipe = async (key, search_by, page, limit) => {
   const offset = (page - 1) * limit;
   // let query = `SELECT * FROM recipe WHERE ${search_by} ILIKE '%${key}%'`;
   let query = `SELECT
-  recipe.recipe_id,
-  recipe.title,
-  recipe.ingredients,
-  recipe.img,
-  recipe.user_id,
-  recipe.category_id,
-  recipe.created_at,
-  category.category_name AS category,
-  users.username AS author,
-  users.photo AS author_photo
-FROM
-  recipe
-JOIN category ON recipe.category_id = category.category_id
-JOIN users ON recipe.user_id = users.user_id
-WHERE 
-  ${search_by} 
-ILIKE 
-  '%${key}%'`;
+                recipe.recipe_id,
+                recipe.title,
+                recipe.ingredients,
+                recipe.img,
+                recipe.user_id,
+                recipe.category_id,
+                recipe.created_at,
+                category.category_name AS category,
+                users.username AS author,
+                users.photo AS author_photo,
+                COALESCE(COUNT(likes.like_id), 0) AS like_count
+              FROM
+                recipe
+              JOIN category ON recipe.category_id = category.category_id
+              JOIN users ON recipe.user_id = users.user_id
+              LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
+              WHERE 
+                ${search_by} 
+              ILIKE 
+                '%${key}%'`;
 
   if (limit) {
     query += ` LIMIT ${limit} OFFSET ${offset}`;
   }
+
+    query += `
+    GROUP BY
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name,
+      users.username,
+      users.photo
+  `;
 
   try {
     const result = await pool.query(query);
@@ -164,13 +241,27 @@ async function poolGetRecipeById(recipe_id) {
     recipe.category_id,
     category.category_name AS category,
     users.username AS author,
-    users.photo AS author_photo
+    users.photo AS author_photo,
+    COALESCE(COUNT(likes.like_id), 0) AS like_count
   FROM
     recipe
   JOIN category ON recipe.category_id = category.category_id
   JOIN users ON recipe.user_id = users.user_id
+  LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   WHERE 
-    recipe_id = $1`;
+    recipe.recipe_id = $1
+  GROUP BY
+    recipe.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name,
+    users.username,
+    users.photo`;
+
     const result = await pool.query(query, [recipe_id]);
     if (result.rowCount > 0) {
       return result;
@@ -216,6 +307,126 @@ async function poolGetRecipeByUserId(user_id) {
   }
 }
 
+
+async function poolPostLike(userId, recipeId) {
+  try {
+    const existingLike = await pool.query(
+      'SELECT * FROM likes WHERE user_id = $1 AND recipe_id = $2',
+      [userId, recipeId]
+    );
+    
+    let res;
+    let message
+
+    if (existingLike.rowCount === 0) {
+      res = await pool.query(
+        'INSERT INTO likes (user_id, recipe_id, created_at) VALUES ($1, $2, current_timestamp) RETURNING *',
+        [userId, recipeId]
+      );
+      message = 'like success'
+    } else {
+      res = await pool.query(
+        'DELETE FROM likes WHERE user_id = $1 AND recipe_id = $2',
+        [userId, recipeId]
+      );
+      message = 'dislike success'
+    }
+
+    return {data:res,message:message}
+} catch(err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolGetLikes(recipeId) {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM likes WHERE recipe_id = $1',
+      [recipeId]
+    );
+    return result;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolPostComment(userId, recipeId, commentText) {
+  try {
+    const result = await pool.query(
+      'INSERT INTO comments (user_id, recipe_id, comment_text, created_at) VALUES ($1, $2, $3, current_timestamp) RETURNING *',
+      [userId, recipeId, commentText]
+    );
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolGetComments(recipeId) {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM comments WHERE recipe_id = $1',
+      [recipeId]
+    );
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolDeleteComment(commentId,userId) {
+  try {
+    const result = await pool.query(
+      'DELETE FROM comments WHERE comment_id = $1 AND user_id = $2 RETURNING *',
+      [commentId, userId]
+    );
+
+    if (result.rowCount === 0) {
+      throw new Error(`Comment with ID ${commentId} not found or you do not have permission to delete it.`);
+    }
+
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolAddBookmark(userId, recipeId) {
+  try {
+    const result = await pool.query(
+      'INSERT INTO bookmarks (user_id, recipe_id, created_at) VALUES ($1, $2, current_timestamp) RETURNING *',
+      [userId, recipeId]
+    );
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolRemoveBookmark(userId, recipeId) {
+  try {
+    const result = await pool.query(
+      'DELETE FROM bookmarks WHERE user_id = $1 AND recipe_id = $2 RETURNING *',
+      [userId, recipeId]
+    );
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+async function poolGetUserBookmarks(userId) {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM bookmarks WHERE user_id = $1',
+      [userId]
+    );
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 module.exports = {
   poolGetAllRecipes,
   poolSearchRecipe,
@@ -226,4 +437,13 @@ module.exports = {
   poolDeleteRecipe,
   poolGetRecipeByUserId,
   poolGetRecipeById,
+  poolPostLike,
+  poolGetLikes,
+  poolPostComment,
+  poolGetComments,
+  poolDeleteComment,
+  poolAddBookmark,
+  poolRemoveBookmark,
+  poolGetUserBookmarks,
+  poolGetRecipesLatest
 };
