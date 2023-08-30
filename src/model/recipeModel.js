@@ -15,14 +15,14 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
       category.category_name AS category,
       users.username AS author,
       users.photo AS author_photo,
-      COALESCE(COUNT(likes.like_id), 0) AS like_count
+      COUNT(likes.like_id) AS like_count
     FROM
       recipe
     JOIN category ON recipe.category_id = category.category_id
     JOIN users ON recipe.user_id = users.user_id
     LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   `;
-
+      // COALESCE(COUNT(likes.like_id), 0) AS like_count,
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
   }
