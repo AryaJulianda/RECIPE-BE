@@ -3,6 +3,25 @@ const pool = require('../config/db');
 async function poolGetAllRecipes(sort_by, sort, page, limit) {
   const offset = (page - 1) * limit;
 
+  // let query = `
+  //   SELECT
+  //     recipe.recipe_id,
+  //     recipe.title,
+  //     recipe.ingredients,
+  //     recipe.img,
+  //     recipe.user_id,
+  //     recipe.category_id,
+  //     recipe.created_at,
+  //     category.category_name AS category,
+  //     users.username AS author,
+  //     users.photo AS author_photo,
+  //     COALESCE(COUNT(likes.like_id), 0) AS like_count
+  //   FROM
+  //     recipe
+  //   JOIN category ON recipe.category_id = category.category_id
+  //   JOIN users ON recipe.user_id = users.user_id
+  //   LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
+  // `;
   let query = `
     SELECT
       recipe.recipe_id,
@@ -14,15 +33,13 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
       recipe.created_at,
       category.category_name AS category,
       users.username AS author,
-      users.photo AS author_photo,
-      COUNT(likes.like_id) AS like_count
+      users.photo AS author_photo
     FROM
       recipe
     JOIN category ON recipe.category_id = category.category_id
     JOIN users ON recipe.user_id = users.user_id
-    LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   `;
-      // COALESCE(COUNT(likes.like_id), 0) AS like_count,
+
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
   }
