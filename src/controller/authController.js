@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
       <p>Klik tautan berikut untuk mengaktifkan akun Anda:</p>
       <a href="${activationLink}">${activationLink}</a>
     `;
-      authModel.sendActivationEmail(newUser.email, 'Aktivasi Akun', emailContent);
+      authModel.sendActivationEmail(newUser.email, 'Acount Activation', emailContent);
 
       res.json({ success: true, message: 'Registrasi berhasil', user: newUser });
     } catch (error) {
