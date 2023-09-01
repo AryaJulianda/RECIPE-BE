@@ -53,7 +53,7 @@ exports.register = async (username,email,password) => {
 
 exports.sendActivationEmail = (to, subject, content) => {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
+    host: emailTester.host,
     port: 587,
     auth: {
         user: emailTester.email,
