@@ -132,24 +132,23 @@ const poolSearchRecipe = async (key, search_by, page, limit) => {
                 ${search_by} 
               ILIKE 
                 '%${key}%'`;
-
-  if (limit) {
-    query += ` LIMIT ${limit} OFFSET ${offset}`;
-  }
-
-    query += `
-    GROUP BY
-      recipe.recipe_id,
-      recipe.title,
-      recipe.ingredients,
-      recipe.img,
-      recipe.user_id,
-      recipe.category_id,
-      recipe.created_at,
-      category.category_name,
-      users.username,
-      users.photo
-  `;
+                
+      query += `
+              GROUP BY
+                recipe.recipe_id,
+                recipe.title,
+                recipe.ingredients,
+                recipe.img,
+                recipe.user_id,
+                recipe.category_id,
+                recipe.created_at,
+                category.category_name,
+                users.username,
+                users.photo`;
+                
+      if (limit) {
+        query += ` LIMIT ${limit} OFFSET ${offset}`;
+      }
 
   try {
     const result = await pool.query(query);
