@@ -54,7 +54,7 @@ exports.register = async (username,email,password) => {
 exports.sendActivationEmail = (to, subject, content) => {
   const transporter = nodemailer.createTransport({
     host: emailTester.host,
-    port: 587,
+    port: emailTester.port,
     auth: {
         user: emailTester.email,
         pass: emailTester.password
