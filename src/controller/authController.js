@@ -43,7 +43,9 @@ exports.register = async (req, res) => {
       const newUser = await authModel.register(username, email, password);
 
       const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
-      const activationLink = `${process.env.FE_URL}/activate?token=${activationToken}`;
+      // const activationLink = `${process.env.FE_URL}/activate?token=${activationToken}`;
+      const activationLink = `${process.env.FE_URL}/auth/activate/${activationToken}`;
+
       const emailContent = `
       <p>Klik tautan berikut untuk mengaktifkan akun Anda:</p>
       <a href="${activationLink}">${activationLink}</a>
