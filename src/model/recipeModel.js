@@ -23,6 +23,20 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
     LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   `;
 
+  query += `
+  GROUP BY
+    recipe.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name,
+    users.username,
+    users.photo
+`;
+
   if (sort_by && sort) {
     query += ` ORDER BY ${sort_by} ${sort}`;
   }
@@ -30,19 +44,7 @@ async function poolGetAllRecipes(sort_by, sort, page, limit) {
     query += ` LIMIT ${limit} OFFSET ${offset}`;
   }
 
-  query += `
-    GROUP BY
-      recipe.recipe_id,
-      recipe.title,
-      recipe.ingredients,
-      recipe.img,
-      recipe.user_id,
-      recipe.category_id,
-      recipe.created_at,
-      category.category_name,
-      users.username,
-      users.photo
-  `;
+
 
   try {
     const result = await pool.query(query);
