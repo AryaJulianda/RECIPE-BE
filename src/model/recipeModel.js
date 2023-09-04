@@ -429,11 +429,43 @@ async function poolGetUserBookmarks(userId) {
 }
 
 async function poolGetUserLikedRecipes(userId) {
+    let query = `
+    SELECT 
+    likes.like_id, 
+    likes.user_id, 
+    likes.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id AS recipe_user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name AS category,
+    users.username AS author,
+    users.photo AS author_photo,
+    COUNT(likes.like_id) AS like_count
+  FROM 
+    recipe
+  INNER JOIN likes ON likes.recipe_id = recipe.recipe_id
+  JOIN category ON recipe.category_id = category.category_id
+  JOIN users ON recipe.user_id = users.user_id
+  WHERE likes.user_id = $1
+  GROUP BY 
+    likes.like_id, 
+    likes.user_id, 
+    likes.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name,
+    users.username,
+    users.photo;
+`;
   try {
-    const result = await pool.query(
-      'SELECT * FROM likes WHERE user_id = $1',
-      [userId]
-    );
+    const result = await pool.query(query,[userId]);
     return result.rows;
   } catch (err) {
     throw new Error(err.message);
