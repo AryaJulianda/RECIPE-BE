@@ -53,11 +53,11 @@ exports.register = async (username,email,password) => {
 
 exports.sendActivationEmail = (to, subject, content) => {
   const transporter = nodemailer.createTransport({
-    host: emailTester.host,
-    port: emailTester.port,
+    host: 'smtp-relay.brevo.com',
+    port: 587,
     auth: {
-        user: emailTester.email,
-        pass: emailTester.password
+        user: 'arya.julianda21@gmail.com',
+        pass: 'HMLGs20KDJpyNCbj'
     }
   });
 
@@ -69,6 +69,7 @@ exports.sendActivationEmail = (to, subject, content) => {
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
+    console.log(emailTester,'ini transporter')
     if (error) {
       console.log('Error sending email:', error);
     } else {
