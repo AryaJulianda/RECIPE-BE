@@ -85,7 +85,7 @@ exports.sendActivationEmail = (to, subject, content) => {
   let defaultClient = SibApiV3Sdk.ApiClient.instance;
   
   let apiKey = defaultClient.authentications['api-key'];
-  apiKey.apiKey = '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';
+  apiKey.apiKey = emailTester.apiKey;
   
   let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
   
