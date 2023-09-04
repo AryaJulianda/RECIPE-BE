@@ -428,6 +428,18 @@ async function poolGetUserBookmarks(userId) {
   }
 }
 
+async function poolGetUserLikedRecipes(userId) {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM likes WHERE user_id = $1',
+      [userId]
+    );
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
 module.exports = {
   poolGetAllRecipes,
   poolSearchRecipe,
@@ -446,5 +458,6 @@ module.exports = {
   poolAddBookmark,
   poolRemoveBookmark,
   poolGetUserBookmarks,
-  poolGetRecipesLatest
+  poolGetRecipesLatest,
+  poolGetUserLikedRecipes
 };

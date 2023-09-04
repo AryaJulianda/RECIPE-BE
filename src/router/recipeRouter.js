@@ -16,9 +16,10 @@ router.post('/', tokenVerification,upload.single('img'), recipeController.postRe
 router.put('/:id', tokenVerification,upload.single('img'), recipeController.updateRecipe);
 router.delete('/:id', tokenVerification, recipeController.deleteRecipe);
 
+router.get('/liked/get', tokenVerification, recipeController.getUserLikedRecipes);
 router.get('/likes/:id',recipeController.getLikes);
-router.get('/comments/:id',recipeController.getComments);
 router.post('/like/:id',tokenVerification,recipeController.postLike);
+router.get('/comments/:id',recipeController.getComments);
 router.post('/comment/:id',tokenVerification,recipeController.postComment);
 router.delete('/comment/:commentId',tokenVerification,recipeController.deleteComment);
 
