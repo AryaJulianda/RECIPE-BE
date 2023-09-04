@@ -4,6 +4,7 @@ const pool = require('../config/db');
 const token = require('../config/token')
 const emailTester = require('../config/emailTester')
 const nodemailer = require('nodemailer');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 exports.login = async (email, password) => {
   try {
@@ -51,31 +52,60 @@ exports.register = async (username,email,password) => {
   }
 };
 
+// exports.sendActivationEmail = (to, subject, content) => {
+//   const transporter = nodemailer.createTransport({
+//     host: 'smtp-relay.brevo.com',
+//     port: 587,
+//     secure:false,
+//     auth: {
+//         user: 'arya.julianda21@gmail.com',
+//         pass: 'HMLGs20KDJpyNCbj'
+//     }
+//   });
+
+//   const mailOptions = {
+//     from: emailTester.email,
+//     to: to,
+//     subject: subject,
+//     html: content
+//   };
+
+//   transporter.sendMail(mailOptions, (error, info) => {
+//     console.log(emailTester,'ini transporter')
+//     if (error) {
+//       console.log('Error sending email:', error);
+//     } else {
+//       console.log('Email sent:', info.response);
+//     }
+//   });
+// };
+
 exports.sendActivationEmail = (to, subject, content) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure:false,
-    auth: {
-        user: 'arya.julianda21@gmail.com',
-        pass: 'HMLGs20KDJpyNCbj'
-    }
-  });
 
-  const mailOptions = {
-    from: emailTester.email,
-    to: to,
-    subject: subject,
-    html: content
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    console.log(emailTester,'ini transporter')
-    if (error) {
-      console.log('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
+  let defaultClient = SibApiV3Sdk.ApiClient.instance;
+  
+  let apiKey = defaultClient.authentications['api-key'];
+  apiKey.apiKey = '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';
+  
+  let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  
+  let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+  
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = content;
+  sendSmtpEmail.sender = {"name":"Mama Recipe","email":"arya.julianda21@gmail.com"};
+  sendSmtpEmail.to = [{"email":to}];
+  // sendSmtpEmail.cc = [{"email":"example2@example2.com","name":"Janice Doe"}];
+  // sendSmtpEmail.bcc = [{"email":"John Doe","name":"example@example.com"}];
+  sendSmtpEmail.replyTo = {"email":"arya.julianda21@gmail.com","name":"Arya Julianda"};
+  // sendSmtpEmail.headers = {"Some-Custom-Name":"unique-id-1234"};
+  // sendSmtpEmail.params = {"parameter":"My param value","subject":"New Subject"};
+  
+  apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
+    console.log('API called successfully. Returned data: ' + JSON.stringify(data));
+    console.log(sendSmtpEmail)
+  }, function(error) {
+    console.error(error);
   });
 };
 

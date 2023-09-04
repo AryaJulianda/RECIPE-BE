@@ -36,6 +36,28 @@ exports.login = async (req, res) => {
   }
 };
 
+// exports.register = async (req, res) => {
+//     const { username, email, password } = req.body;
+//     // console.log(req.body)
+//     try {
+//       const newUser = await authModel.register(username, email, password);
+
+//       const activationToken = jwt.sign({ email: newUser.email }, config.activationSecretKey, { expiresIn: '24h' });
+//       // const activationLink = `${process.env.FE_URL}/activate?token=${activationToken}`;
+//       const activationLink = `${process.env.FE_URL}/auth/activate/${activationToken}`;
+
+//       const emailContent = `
+//       <p>Klik tautan berikut untuk mengaktifkan akun Anda:</p>
+//       <a href="${activationLink}">${activationLink}</a>
+//     `;
+//       authModel.sendActivationEmail(newUser.email, 'Acount Activation', emailContent);
+
+//       res.json({ success: true, message: 'Registrasi berhasil', user: newUser });
+//     } catch (error) {
+//       res.status(400).json({ success: false, message: error.message });
+//     }
+//   };
+
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
     // console.log(req.body)
@@ -46,10 +68,7 @@ exports.register = async (req, res) => {
       // const activationLink = `${process.env.FE_URL}/activate?token=${activationToken}`;
       const activationLink = `${process.env.FE_URL}/auth/activate/${activationToken}`;
 
-      const emailContent = `
-      <p>Klik tautan berikut untuk mengaktifkan akun Anda:</p>
-      <a href="${activationLink}">${activationLink}</a>
-    `;
+      const emailContent = `<html><body><p>Klik tautan berikut untuk mengaktifkan akun Anda:</p><a href="${activationLink}">${activationLink}</a></body></html>`;
       authModel.sendActivationEmail(newUser.email, 'Acount Activation', emailContent);
 
       res.json({ success: true, message: 'Registrasi berhasil', user: newUser });
