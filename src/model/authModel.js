@@ -54,7 +54,7 @@ exports.register = async (username,email,password) => {
 exports.sendActivationEmail = (to, subject, content) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
-    port: 587,
+    port: 465,
     secure:true,
     auth: {
         user: 'arya.julianda21@gmail.com',
