@@ -297,7 +297,18 @@ async function poolGetRecipeByUserId(user_id) {
   JOIN users ON recipe.user_id = users.user_id
   LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   WHERE 
-    recipe.user_id = $1`
+    recipe.user_id = $1
+  GROUP BY
+    recipe.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name,
+    users.username,
+    users.photo`
     ;
     const result = await pool.query(query, [user_id]);
     if (result.rowCount > 0) {
