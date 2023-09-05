@@ -289,11 +289,13 @@ async function poolGetRecipeByUserId(user_id) {
     recipe.user_id,
     recipe.category_id,
     category.category_name AS category,
-    users.username AS author
+    users.username AS author,
+    COALESCE(COUNT(likes.like_id), 0) as like_count
   FROM
     recipe
   JOIN category ON recipe.category_id = category.category_id
   JOIN users ON recipe.user_id = users.user_id
+  LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
   WHERE 
     recipe.user_id = $1`
     ;
