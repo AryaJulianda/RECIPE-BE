@@ -417,11 +417,44 @@ async function poolRemoveBookmark(userId, recipeId) {
 }
 
 async function poolGetUserBookmarks(userId) {
+  let query = `
+  SELECT 
+    bookmarks.bookmark_id, 
+    bookmarks.user_id, 
+    bookmarks.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id AS recipe_user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name AS category,
+    users.username AS author,
+    users.photo AS author_photo
+  FROM 
+    recipe
+  LEFT JOIN bookmarks ON bookmarks.recipe_id = recipe.recipe_id
+  JOIN category ON recipe.category_id = category.category_id
+  JOIN users ON recipe.user_id = users.user_id
+  WHERE bookmarks.user_id = $1
+  GROUP BY 
+    bookmarks.bookmark_id, 
+    bookmarks.user_id, 
+    bookmarks.recipe_id,
+    recipe.title,
+    recipe.ingredients,
+    recipe.img,
+    recipe.user_id,
+    recipe.category_id,
+    recipe.created_at,
+    category.category_name,
+    users.username,
+    users.photo;
+  `;
+
   try {
-    const result = await pool.query(
-      'SELECT * FROM bookmarks WHERE user_id = $1',
-      [userId]
-    );
+    // 'SELECT * FROM bookmarks WHERE user_id = $1',
+    const result = await pool.query(query,[userId]);
     return result.rows;
   } catch (err) {
     throw new Error(err.message);
