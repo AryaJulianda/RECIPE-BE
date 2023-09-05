@@ -443,10 +443,10 @@ async function poolGetUserLikedRecipes(userId) {
     category.category_name AS category,
     users.username AS author,
     users.photo AS author_photo,
-    COUNT(likes.like_id) AS like_count
+    COALESCE(COUNT(likes.like_id), 0) AS like_count
   FROM 
     recipe
-  INNER JOIN likes ON likes.recipe_id = recipe.recipe_id
+  LEFT JOIN likes ON likes.recipe_id = recipe.recipe_id
   JOIN category ON recipe.category_id = category.category_id
   JOIN users ON recipe.user_id = users.user_id
   WHERE likes.user_id = $1
