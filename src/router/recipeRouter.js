@@ -11,6 +11,7 @@ router.get('/my_recipe/:id', recipeController.getRecipeByUserId);
 router.get('/:id', recipeController.getRecipeById);
 
 router.get('/latest/get', recipeController.getRecipesLatest);
+router.get('/popular/get', recipeController.getRecipesPopular);
 
 router.post('/', tokenVerification,upload.single('img'), recipeController.postRecipe);
 router.put('/:id', tokenVerification,upload.single('img'), recipeController.updateRecipe);

@@ -98,6 +98,47 @@ async function poolGetRecipesLatest(limit) {
   }
 }
 
+async function poolGetRecipesPopular(limit) {
+  let query = `
+    SELECT
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name AS category,
+      users.username AS author,
+      users.photo AS author_photo,
+      COUNT(likes.like_id) AS like_count
+    FROM
+      recipe
+    JOIN category ON recipe.category_id = category.category_id
+    JOIN users ON recipe.user_id = users.user_id
+    LEFT JOIN likes ON recipe.recipe_id = likes.recipe_id
+    GROUP BY
+      recipe.recipe_id,
+      recipe.title,
+      recipe.ingredients,
+      recipe.img,
+      recipe.user_id,
+      recipe.category_id,
+      recipe.created_at,
+      category.category_name,
+      users.username,
+      users.photo
+    ORDER BY like_count DESC, recipe.created_at DESC
+    LIMIT ${limit};`;
+
+  try {
+    const result = await pool.query(query);
+    if (result.rowCount === 0) return { message: 'recipe not found' };
+    return result.rows;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
 
 const poolGetTotalRecipeCount = async () => {
   let query = `SELECT COUNT(*) FROM recipe`;
@@ -540,5 +581,6 @@ module.exports = {
   poolRemoveBookmark,
   poolGetUserBookmarks,
   poolGetRecipesLatest,
-  poolGetUserLikedRecipes
+  poolGetUserLikedRecipes,
+  poolGetRecipesPopular
 };

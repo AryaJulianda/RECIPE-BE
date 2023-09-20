@@ -17,7 +17,8 @@ const {
   poolRemoveBookmark,
   poolGetUserBookmarks,
   poolGetRecipesLatest,
-  poolGetUserLikedRecipes
+  poolGetUserLikedRecipes,
+  poolGetRecipesPopular
 } = require('../model/recipeModel');
 // const cloudinary = require('cloudinary').v2;
 // const upload = require('../middleware/uploadImage');
@@ -304,6 +305,17 @@ const recipeController = {
 
     try {
       const result = await poolGetRecipesLatest(limit);
+      res.json({data : result})
+    } catch(err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+  getRecipesPopular: async (req, res, next) => {
+    const limit = 10;
+
+    try {
+      const result = await poolGetRecipesPopular(limit);
       res.json({data : result})
     } catch(err) {
       console.error(err);
