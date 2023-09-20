@@ -297,7 +297,7 @@ const recipeController = {
       res.json({ data : likedRecipes });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: err });
     }
   },
   getRecipesLatest: async (req, res, next) => {
@@ -308,7 +308,7 @@ const recipeController = {
       res.json({data : result})
     } catch(err) {
       console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: err });
     }
   },
   getRecipesPopular: async (req, res, next) => {
@@ -319,7 +319,7 @@ const recipeController = {
       res.json({data : result})
     } catch(err) {
       console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: err });
     }
   }
   
