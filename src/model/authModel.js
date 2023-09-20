@@ -22,7 +22,7 @@ exports.login = async (email, password) => {
       }
 
     } else {
-      throw new Error('Email not found, please register if you dont have account before');
+      throw new Error('Email not found, please register if you don`t have account before');
     }
   } catch (error) {
     throw new Error(error.message);
