@@ -216,6 +216,10 @@ async function poolDeleteRecipe(id,user_id) {
   }
   
   try {
+    await pool.query('DELETE FROM bookmarks WHERE recipe_id = $1', [id]);
+    await pool.query('DELETE FROM comments WHERE recipe_id = $1', [id]);
+    await pool.query('DELETE FROM likes WHERE recipe_id = $1', [id]);
+
     const result = await pool.query('DELETE FROM recipe WHERE user_id = $1 AND recipe_id = $2 RETURNING *', [user_id,id]);
     if (result.rowCount > 0) {
       return result;
