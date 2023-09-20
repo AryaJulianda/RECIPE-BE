@@ -321,6 +321,18 @@ const recipeController = {
       console.error(err);
       res.status(500).json({ message:'internal server error',error: err });
     }
+  },
+  getRecipesHome: async (req, res, next) => {
+    const limit = 10;
+
+    try {
+      const popular = await poolGetRecipesPopular(limit);
+      const latest = await poolGetRecipesLatest(limit);
+      res.json({data:{popular,latest}})
+    } catch(err) {
+      console.error(err);
+      res.status(500).json({ message:'internal server error',error: err });
+    }
   }
   
 };

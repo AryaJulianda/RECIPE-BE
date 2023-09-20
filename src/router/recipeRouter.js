@@ -10,6 +10,8 @@ router.get('/search', recipeController.searchRecipe);
 router.get('/my_recipe/:id', recipeController.getRecipeByUserId);
 router.get('/:id', recipeController.getRecipeById);
 
+
+router.get('/home/get', recipeController.getRecipesHome);
 router.get('/latest/get', recipeController.getRecipesLatest);
 router.get('/popular/get', recipeController.getRecipesPopular);
 

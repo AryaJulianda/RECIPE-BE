@@ -94,7 +94,7 @@ async function poolGetRecipesLatest(limit) {
     if (result.rowCount === 0) return { message: 'recipe not found' };
     return result.rows;
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error(err);
   }
 }
 
@@ -136,7 +136,7 @@ async function poolGetRecipesPopular(limit) {
     if (result.rowCount === 0) return { message: 'recipe not found' };
     return result.rows;
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error(err);
   }
 }
 
