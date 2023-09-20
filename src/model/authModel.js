@@ -18,12 +18,11 @@ exports.login = async (email, password) => {
       } else if (await argon2.verify(user.password, password)) {
         return user;
       } else {
-        throw new Error('Password yang anda masukan salah');
+        throw new Error('Wrong password!');
       }
 
-
     } else {
-      throw new Error('Email tidak ditemukan');
+      throw new Error('Email not found, please register if you dont have account before');
     }
   } catch (error) {
     throw new Error(error.message);

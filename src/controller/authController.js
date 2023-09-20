@@ -17,17 +17,7 @@ exports.login = async (req, res) => {
     // Generate Token JWT
     const accessToken = jwt.sign({ id: user.user_id ,role: role}, config.secretKey, { expiresIn: config.expiresIn });
     const refreshToken = jwt.sign({ id: user.user_id, role: role }, config.refreshSecretKey, { expiresIn: config.refreshExpiresIn });
-
-    // // Generate UUID for session
-    // const sessionId = uuidv4();
-
-    // // Save UUID and JWT token in your session storage (e.g., database or cache)
-    // // Here, I am using a simple in-memory object to store the sessions
-    // sessionsDB[sessionId] = accessToken;
-
-    // res.json({ message: 'Token JWT disimpan di session dengan UUID.', sessionId: sessionId });
-
-    // res.cookie('jwt', accessToken, { httpOnly: true, secure: true })
+    
     res.json({ message: 'Login Successfully', user:user , accessToken: accessToken ,refreshToken: refreshToken});
 
   
