@@ -13,13 +13,18 @@ exports.login = async (email, password) => {
 
     if (result.rowCount > 0) {
       const user = result.rows[0];
-      if(!user.is_active) {
-        throw new Error('Please activate your acount')
-      } else if (await argon2.verify(user.password, password)) {
+      if (await argon2.verify(user.password, password)) {
         return user;
       } else {
         throw new Error('Wrong password!');
       }
+      // if(!user.is_active) {
+      //   throw new Error('Please activate your acount')
+      // } else if (await argon2.verify(user.password, password)) {
+      //   return user;
+      // } else {
+      //   throw new Error('Wrong password!');
+      // }
 
     } else {
       throw new Error('Email not found, please register if you don`t have account before');
