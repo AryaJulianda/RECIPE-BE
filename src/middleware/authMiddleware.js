@@ -37,8 +37,11 @@ exports.tokenVerification = async (req, res, next) => {
 
     // Verifikasi is_active dari user
       const user = await authModel.getUserById(decoded.id);
-      if (!user || !user.is_active) {
-        return res.status(401).json({ success: false, message: 'Akun tidak aktif atau tidak ditemukan' });
+      // if (!user || !user.is_active) {
+      //   return res.status(401).json({ success: false, message: 'Akun tidak aktif atau tidak ditemukan' });
+      // }
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Akun tidak tidak ditemukan' });
       }
     // console.log(`User dengan id ${decoded.id} dan role ${decoded.role} sedang menggunakan aplikasi`);
     req.userId = decoded.id;
