@@ -1,4 +1,4 @@
-<h2>Recipe Rest API</h2>
+<h2>Recipe Back End</h2>
 
 
 <!-- TABLE OF CONTENTS -->
