@@ -15,7 +15,7 @@
 <!-- ABOUT THE PROJECT -->
 ### About The Project
 
-Recipe Rest API is server api that used in [`Mama Recipe`](https://mama-recipe.pages.dev) and [Mama Recipe Mobile](https://github.com/AryaJulianda/RECIPE-MOBILE) . This server manage all function and endpoint in Food recipes app such as create, add , update and delete recipe. Authentication about login, register and getting profile info.
+Recipe BE is REST-API that used in [`Mama Recipe`](https://mama-recipe.pages.dev) and [Mama Recipe Mobile](https://github.com/AryaJulianda/RECIPE-MOBILE) . This server manage all function and endpoint in Food recipes app such as create, add , update and delete recipe. Authentication about login, register and getting profile info.
 
 
 ### Built With
